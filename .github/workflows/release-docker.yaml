@@ -2,8 +2,9 @@ name: release-docker
 
 on:
   workflow_dispatch:
-  schedule:
-    - cron: "0 0 * * *"
+  push:
+    tags:
+      - 'v*.*.*'
 
 jobs:
   build-docker-images:
@@ -45,8 +46,7 @@ jobs:
         with:
           context: .
           file: ./build-metrics.Dockerfile
-          #platforms: linux/amd64,linux/arm/v7,linux/arm64/v8
-          platforms: linux/amd64
+          platforms: linux/amd64,linux/arm/v7,linux/arm64/v8
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ env.GITHUB_REPOSITORY }}:${{ matrix.IMAGE_TAG }}
           labels: ${{ steps.docker_meta.outputs.labels }}
