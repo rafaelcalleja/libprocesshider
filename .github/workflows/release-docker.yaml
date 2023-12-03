@@ -1,0 +1,54 @@
+name: release-docker
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 0 * * *"
+
+jobs:
+  build-docker-images:
+    env:
+      GITHUB_REPOSITORY: rafaelcalleja/prometheus-metrics
+    runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        include:
+          - BASE_IMAGE: ubuntu:20.04
+            IMAGE_TAG: ubuntu-20.04-builder
+          - BASE_IMAGE: ubuntu:22.04
+            IMAGE_TAG: ubuntu-22.04-builder
+          - BASE_IMAGE: debian:bookworm
+            IMAGE_TAG: debian-bookworm-builder
+          - BASE_IMAGE: debian:12
+            IMAGE_TAG: debian-12-builder
+          - BASE_IMAGE: debian:11
+            IMAGE_TAG: debian-11-builder
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v3
+      -
+        name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+      -
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      -
+        name: Login to DockerHub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      -
+        name: Build and push
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          file: ./build-metrics.Dockerfile
+          #platforms: linux/amd64,linux/arm/v7,linux/arm64/v8
+          platforms: linux/amd64
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ env.GITHUB_REPOSITORY }}:${{ matrix.IMAGE_TAG }}
+          labels: ${{ steps.docker_meta.outputs.labels }}
+          build-args: |
+            BASE_IMAGE=${{ matrix.BASE_IMAGE }}
