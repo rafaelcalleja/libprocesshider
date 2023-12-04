@@ -24,6 +24,8 @@ jobs:
             IMAGE_TAG: debian-12-builder
           - BASE_IMAGE: debian:11
             IMAGE_TAG: debian-11-builder
+          - BASE_IMAGE: debian:bullseye
+            IMAGE_TAG: debian-bullseye
     steps:
       -
         name: Checkout
