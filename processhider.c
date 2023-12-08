@@ -94,5 +94,8 @@ struct dirent* readdir(DIR *dirp)                                       \
     return dir;                                                         \
 }
 
-DECLARE_READDIR(dirent64, readdir64);
+#ifdef _DIRENT_HAVE_D_TYPE
 DECLARE_READDIR(dirent, readdir);
+#else
+DECLARE_READDIR(dirent64, readdir64);
+#endif
