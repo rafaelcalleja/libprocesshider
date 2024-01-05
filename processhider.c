@@ -5,6 +5,8 @@
 #include <dirent.h>
 #include <string.h>
 #include <unistd.h>
+#include <stdlib.h> 
+#include <limits.h>
 
 /*
  * Every process with this name will be excluded
@@ -64,6 +66,17 @@ static int get_process_name(char* pid, char* buf)
 
 int is_process_to_filter(char *process_name) {
     int i;
+    char *endptr; 
+    long val = strtol(process_name, &endptr, 10); 
+ 
+    if (*endptr == '\0' && val != LONG_MIN && val != LONG_MAX) { 
+        for(i = 0; i < process_to_filter_count; i++) { 
+            if(strcmp(process_to_filter[i], "%number%") == 0) { 
+                return 1; 
+            } 
+        } 
+    } 
+
     for(i = 0; i < process_to_filter_count; i++) {
         if(strncmp(process_name, process_to_filter[i], strlen(process_name)) == 0) {
             return 1;
